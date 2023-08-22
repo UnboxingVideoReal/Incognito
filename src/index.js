@@ -1,5 +1,6 @@
-import createBareServer from "@tomphttp/bare-server-node";
+import { createBareServer } from "@tomphttp/bare-server-node";
 import { uvPath } from "@titaniumnetwork-dev/ultraviolet";
+import { gamesPath } from "@amethystnetwork-dev/incognito-gfiles";
 
 import { fileURLToPath } from "node:url";
 import { createServer as createHttpsServer } from "node:https";
@@ -29,19 +30,11 @@ app.use((req, res, next) => {
 });
 
 app.use(serveStatic(fileURLToPath(new URL("../static/", import.meta.url))));
-const gFolder = fileURLToPath(new URL("../gsource", import.meta.url));
-app.use("/source", serveStatic(gFolder));
-app.use("/source", serveIndex(gFolder, { icons: true }));
+app.use("/source", serveStatic(gamesPath));
+app.use("/source", serveIndex(gamesPath, { icons: true }));
 
 app.use("/uv/", serveStatic(uvPath));
 analytics(app);
-
-app.use((req, res) => {
-  res.writeHead(500, null, {
-    "Content-Type": "text/plain",
-  });
-  res.end("Error");
-});
 
 server.on("request", app);
 server.on("upgrade", (req, socket, head) => {
@@ -58,7 +51,7 @@ server.on("listening", () => {
   console.log(`Local: http${ssl ? "s" : ""}://${addr.family === "IPv6" ? `[${addr.address}]` : addr.address}${(addr.port === 80 || ssl && addr.port === 443)? "" : ":" + addr.port}`);
   console.log(`Local: http${ssl ? "s" : ""}://localhost${(addr.port === 80 || ssl && addr.port === 443)? "" : ":" + addr.port}`);
   try { console.log(`On Your Network: http${ssl ? "s" : ""}://${hostname()}${(addr.port === 80 || ssl && addr.port === 443)? "" : ":" + addr.port}`); } catch (err) {/* Can't find LAN interface */};
-  if(process.env.REPL_SLUG && process.env.REPL_OWNER) console.log(`Replit: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
+  if(process.env.REPL_SLUG && process.env.REPL_OWNER) console.log(`Replit (why are you using replit): https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
 });
 
 server.listen({ port: PORT })
